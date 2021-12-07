@@ -1,2 +1,2 @@
 # Spydio
-Python library for spatializing sound through a simple headphone
+Python library for spatializing sound through a simple headphone.

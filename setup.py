@@ -31,6 +31,7 @@ setup(
         "Operating System :: OS Independent"
     ],
     packages=["spydio"],
+    package_data={'spydio': ['HRIR/*.sofa']},
     include_package_data=True,
     install_requires=["numpy", "scipy", "SOFASonix"]
 )

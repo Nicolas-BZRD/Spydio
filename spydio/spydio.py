@@ -19,7 +19,7 @@ class WavSpydio:
 
 class Spydio:
     def __init__(self, HRIR:int=0, verbose:bool=False):
-        self.sofaFile = SOFAFile.load(os.path.abspath(os.getcwd())+"/spydio/hrir/{}.sofa".format(HRIR), verbose=False)
+        self.sofaFile = SOFAFile.load(os.path.dirname(os.path.abspath(__file__))+"/HRIR/{}.sofa".format(HRIR), verbose=False)
         self.HRIR = self.sofaFile.data_ir
         if verbose: 
             print(self.sofaFile.getParam('GLOBAL:ListenerDescription'))

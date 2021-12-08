@@ -1,3 +1,4 @@
+import os
 import numpy as np
 import scipy.io.wavfile as spiow
 from SOFASonix import SOFAFile
@@ -18,7 +19,7 @@ class WavSpydio:
 
 class Spydio:
     def __init__(self, HRIR:int=0, verbose:bool=False):
-        self.sofaFile = SOFAFile.load("./spydio/HRIR/{}.sofa".format(HRIR), verbose=False)
+        self.sofaFile = SOFAFile.load(os.path.abspath(os.getcwd())+"/HRIR/{}.sofa".format(HRIR), verbose=False)
         self.HRIR = self.sofaFile.data_ir
         if verbose: 
             print(self.sofaFile.getParam('GLOBAL:ListenerDescription'))

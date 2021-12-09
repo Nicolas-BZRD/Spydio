@@ -39,13 +39,13 @@ class Spydio:
             processedL = np.array(signal.fftconvolve(wavSpydio.song[:], self.HRIR[(72*elevation)+azimuth][0][:]))
             processedR = np.array(signal.fftconvolve(wavSpydio.song[:], self.HRIR[(72*elevation)+azimuth][1][:]))
         else:
-            processedL = np.array(signal.fftconvolve(wavSpydio.song[:,0], self.HRIR[(72*elevation)+azimuth][0][:]))
-            processedR = np.array(signal.fftconvolve(wavSpydio.song[:,1], self.HRIR[(72*elevation)+azimuth][1][:]))
+            processedL = np.array(signal.fftconvolve(wavSpydio.song[:,channel], self.HRIR[(72*elevation)+azimuth][0][:]))
+            processedR = np.array(signal.fftconvolve(wavSpydio.song[:,channel], self.HRIR[(72*elevation)+azimuth][1][:]))
 
         song = np.array([processedL, processedR]).transpose()
         return WavSpydio(path=None, song=song, song_sr=wavSpydio.song_sr)
 
-    def rotation(self, wavSpydio:WavSpydio, azimuthStart:int, azimuthEnd:int, elevationStart:int=4, elevationEnd:int=4):
+    def rotation(self, wavSpydio:WavSpydio, azimuthStart:int, azimuthEnd:int, elevationStart:int=4, elevationEnd:int=4, channel:int=0):
         azimuthStart = 5*round(azimuthStart/5)
         azimuthEnd = 5*round(azimuthEnd/5)
 
@@ -57,9 +57,10 @@ class Spydio:
         spatialized = []
 
         while azimuth != azimuthEnd:
-            spatialized.append(self.spatialize(wavSpydio, azimuth, elevation))
+            spatialized.append(self.spatialize(wavSpydio, azimuth, elevation, channel=channel))
             azimuth = azimuth+5 if azimuthVariation > 0 else azimuth-5
 
+        azimuthVariation = abs(azimuthVariation)
         srVariation = wavSpydio.spDuration//(azimuthVariation//5)
         leftChannel = []
         rightChannel = []
@@ -73,7 +74,7 @@ class Spydio:
                 leftChannel = np.add(leftChannel, spatialized[i].song[:,0]*gate)
                 rightChannel = np.add(rightChannel, spatialized[i].song[:,1]*gate)
             else:
-                gate = self.gate( (srVariation*i)-512, (srVariation*i)+512, (srVariation*(i+1))-512, (srVariation*(i+1))+512, spDuration=spatialized[i].spDuration)
+                gate = self.gate((srVariation*i)-512, (srVariation*i)+512, (srVariation*(i+1))-512, (srVariation*(i+1))+512, spDuration=spatialized[i].spDuration)
                 leftChannel = np.add(leftChannel, spatialized[i].song[:,0]*gate)
                 rightChannel = np.add(rightChannel, spatialized[i].song[:,1]*gate)
 
@@ -131,3 +132,8 @@ class Spydio:
         rightChannel = rightChannel/np.amax(rightChannel)
 
         spiow.write(path, wavSpydio.song_sr, np.vstack([leftChannel, rightChannel]).transpose())
+
+sp = Spydio()
+song = sp.loadWavFile("crash.wav")
+spatialize = sp.rotation(song, -180, 0)
+sp.saveWavFile(spatialize, "spatialize")

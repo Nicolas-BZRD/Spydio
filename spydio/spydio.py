@@ -160,8 +160,3 @@ class Spydio:
         rightChannel = rightChannel/np.amax(rightChannel)
 
         spiow.write(path, wavSpydio.song_sr, np.vstack([leftChannel, rightChannel]).transpose())
-
-sp = Spydio()
-song = sp.loadWavFile("song_binaural.wav")
-song = sp.rotation(song, 0, -320, clockwiseRotation=False)
-sp.saveWavFile(song, 'test')

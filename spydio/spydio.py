@@ -6,7 +6,33 @@ from SOFASonix import SOFAFile
 from scipy import signal
 
 class WavSpydio:
+    """
+    WavSpydio
+    =====
+
+    Provides an object used to store and manage a .wav file within the Spydio
+    library.
+    """
+
     def __init__(self, path:str, **kwargs):
+        """
+        Create an object of type WavSpydio. A WavSpydio object is used 
+        to store and manage a wav file within the Spydio library.
+
+        Parameters
+        ----------
+        path: str
+            Path to the wav file you wish to open.
+        **kwargs: Any, optional (not recommended)
+            To create your own WavSpydio.
+            Set the path parameter to None, then enter the sample rates
+            of the audio file you want and the audio samples array.
+
+        Examples
+        --------
+        >>> wavSpp = WavSpydio("path/file.wav")
+        >>> wavSpp = WavSpydio(None, song=[samples], song_sr=44100)
+        """
         if path != None:
             self.song_sr, self.song = spiow.read(path)
             self.song = np.asarray(self.song)
@@ -45,25 +71,27 @@ class Spydio:
         song = np.array([processedL, processedR]).transpose()
         return WavSpydio(path=None, song=song, song_sr=wavSpydio.song_sr)
 
-    def rotation(self, wavSpydio:WavSpydio, azimuthStart:int, azimuthEnd:int, elevationStart:int=4, elevationEnd:int=4, channel:int=0):
-        azimuthStart = 5*round(azimuthStart/5)
-        azimuthEnd = 5*round(azimuthEnd/5)
-
+    def rotation(self, wavSpydio:WavSpydio, azimuthStart:int, azimuthEnd:int, elevationStart:int=4, elevationEnd:int=4, channel:int=0, clockwiseRotation:bool=True):
+        azimuthStart = (5*round(azimuthStart/5))%360
+        azimuthEnd = (5*round(azimuthEnd/5))%360
         azimuthVariation = azimuthEnd - azimuthStart
-        azimuthEnd = azimuthEnd+5 if azimuthVariation > 0 else azimuthEnd-5
+
+        if(azimuthStart>azimuthEnd and clockwiseRotation): azimuthVariation = (360-azimuthStart)+azimuthEnd
+        elif(azimuthStart<azimuthEnd and not clockwiseRotation): azimuthVariation = (360-azimuthEnd)+azimuthStart
+        else: azimuthVariation = abs(azimuthEnd-azimuthStart)
+
+        azimuthEnd = azimuthEnd+5 if clockwiseRotation else azimuthEnd-5
 
         azimuth = azimuthStart
         elevation = elevationStart
         spatialized = []
-
         while azimuth != azimuthEnd:
             spatialized.append(self.spatialize(wavSpydio, azimuth, elevation, channel=channel))
-            azimuth = azimuth+5 if azimuthVariation > 0 else azimuth-5
+            azimuth = (azimuth+5 if clockwiseRotation else azimuth-5)%360
 
-        azimuthVariation = abs(azimuthVariation)
-        srVariation = wavSpydio.spDuration//(azimuthVariation//5)
         leftChannel = []
         rightChannel = []
+        srVariation = wavSpydio.spDuration//(azimuthVariation//5)
         for i in range(0, azimuthVariation//5):
             if(i==0):
                 gate = self.gradientGate(srVariation-512, srVariation+512, 1, 0, spDuration=spatialized[i].spDuration)
@@ -134,6 +162,6 @@ class Spydio:
         spiow.write(path, wavSpydio.song_sr, np.vstack([leftChannel, rightChannel]).transpose())
 
 sp = Spydio()
-song = sp.loadWavFile("crash.wav")
-spatialize = sp.rotation(song, -180, 0)
-sp.saveWavFile(spatialize, "spatialize")
+song = sp.loadWavFile("song_binaural.wav")
+song = sp.rotation(song, 0, -320, clockwiseRotation=False)
+sp.saveWavFile(song, 'test')

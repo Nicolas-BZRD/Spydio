@@ -81,6 +81,7 @@ class Spydio:
         else: azimuthVariation = abs(azimuthEnd-azimuthStart)
 
         azimuthEnd = azimuthEnd+5 if clockwiseRotation else azimuthEnd-5
+        if(azimuthEnd == 360): azimuthEnd == 0
 
         azimuth = azimuthStart
         elevation = elevationStart

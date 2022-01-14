@@ -1,6 +1,6 @@
 # Spydio
 Spydio allows to simulate 3D audio to have a rendering like Dolby Atmos through simple headphones
-An audio file with a rotation is available in the "examples" folder (! Headset require !).
+An audio file with a rotation is available in the "demo" folder (! Headset require !).
 The effect can vary from person to person depending on the shape of their head. Do not hesitate to use another HRIR when you initialise Spydio.
 
 ## How it's work:

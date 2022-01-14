@@ -1,6 +1,5 @@
 import os
 import numpy as np
-from numpy.lib.function_base import gradient
 import scipy.io.wavfile as spiow
 from SOFASonix import SOFAFile
 from scipy import signal

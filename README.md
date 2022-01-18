@@ -15,13 +15,14 @@ sp = Spydio()
 song = sp.loadWavFile("test.wav")
 ```
 
-### 3 - Virtualization operation 
+### 3 - Virtualization operations
 ```python
 song = sp.rotation(song, 120, 250) #To virtualize the song with a rotation (120° -> 250°)
+# or
 song = sp.spatialize(song, -90) #To spatialize the song at -90° (270°)
 ```
 
-### 4 - Save when operation are done
+### 4 - Save when operations are done
 ```python
 sp.saveWavFile(song, 'rot_spatialize')
 ```
